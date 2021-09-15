@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api_project.apps.ApiProjectConfig',
     'rest_framework',
+    'sorl.thumbnail',
+    'sorl_thumbnail_serializer',
 ]
 
 MIDDLEWARE = [
@@ -117,3 +119,4 @@ LOGOUT_REDIRECT_URL = config('LOGOUT_REDIRECT_URL')
 
 MEDIA_ROOT = config('MEDIA_ROOT')
 MEDIA_URL = config('MEDIA_URL')
+
