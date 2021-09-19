@@ -13,7 +13,6 @@ router.register('temp_url', TempUrlViewSet, basename='temp_url')
 urlpatterns = [
     path('viewset/', include(router.urls)),
     path('viewset/<int:pk>/', include(router.urls)),
-    path('viewset/', include(router.urls)),
 ]
 
 if settings.DEBUG:

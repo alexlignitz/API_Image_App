@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from api_project.models import Image
+from api_project.models import Image, TemporaryUrl
 
-admin.site.register(Image)
+admin.site.register([Image, TemporaryUrl])

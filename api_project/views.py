@@ -1,10 +1,9 @@
 import datetime
 
+from django.utils.timezone import utc
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import DjangoModelPermissions
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from api_project.models import Image, TemporaryUrl
 from api_project.serializers import BasicAccountSerializer, PremiumAccountSerializer, EnterpriseAccountSerializer, \
@@ -15,7 +14,10 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         author = self.request.user
-        images = Image.objects.filter(author=author)
+        if author.is_superuser:
+            images = Image.objects.all()
+        else:
+            images = Image.objects.filter(author=author)
         return images
 
     def get_serializer_class(self):
@@ -38,20 +40,13 @@ class TempUrlViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         author = self.request.user
-        links = TemporaryUrl.objects.filter(author=author)
-        today = datetime.datetime.now()
-
-        for link in links:
-            # checks if any of the existing links is expired and deletes it
-            if link.created + datetime.timedelta(0, link.expires) >= today:
-                link.delete()
-            else:
-                return link
-
+        if author.is_superuser:
+            links = TemporaryUrl.objects.all()
+        else:
+            links = TemporaryUrl.objects.filter(author=author)
         return links
 
     serializer_class = TempUrlViewSerializer
     queryset = get_queryset
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [DjangoModelPermissions]
-

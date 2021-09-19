@@ -1,4 +1,5 @@
-from django.contrib.auth.models import User
+import datetime
+
 from rest_framework import serializers
 from sorl_thumbnail_serializer.fields import HyperlinkedSorlImageField
 
@@ -39,11 +40,36 @@ class EnterpriseAccountSerializer(serializers.ModelSerializer):
 
 
 class TempUrlViewSerializer(serializers.ModelSerializer):
-    image = serializers.IntegerField()
+    image_id = serializers.IntegerField(write_only=True)
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    temp_url = serializers.HiddenField(default=None)
-    expires = serializers.IntegerField()
+    temp_url = serializers.SerializerMethodField('create_url', read_only=True)
+    created = serializers.DateTimeField(read_only=True)
+    expires = serializers.IntegerField(write_only=True)
+    exp_date = serializers.SerializerMethodField('get_exp_date', read_only=True)
+
+    def validate_link(self, obj):
+        now = datetime.datetime.now()
+        exp_sec = obj.created.replace(tzinfo=None)
+        exp_date = exp_sec + datetime.timedelta(hours=2, seconds=obj.expires)
+        if now >= exp_date:
+            temp_url = "Link expired"
+            return temp_url
+        return obj
 
     class Meta:
         model = TemporaryUrl
-        fields = ['image', 'author', 'temp_url', 'expires']
+        fields = ['image_id', 'author', 'temp_url', 'created', 'expires', 'exp_date']
+
+
+    def create_url(self, obj):
+        request = self.context.get("request")
+        image_obj_url = Image.objects.get(pk=obj.image_id).image.url
+        return request.build_absolute_uri(image_obj_url)
+
+    def get_exp_date(self, obj):
+        exp_sec = obj.created.replace(tzinfo=None)
+        exp_date = exp_sec + datetime.timedelta(hours=2, seconds=obj.expires)
+        return exp_date
+
+    def get_image(self, obj):
+        return Image.objects.get(pk=obj.image_id)

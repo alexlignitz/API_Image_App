@@ -10,23 +10,18 @@ def nameFile(instance, filename):
 
 
 class Image(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
-    image = ImageField(upload_to=nameFile)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Author')
+    title = models.CharField(max_length=100, verbose_name='Image title')
+    image = ImageField(upload_to=nameFile, verbose_name='Original image')
 
 
 class TemporaryUrl(models.Model):
 
-    def create_url(self):
-        image_object = Image.objects.get(pk=self.image)
-        url = image_object.url
-        return url
-
-    image = models.IntegerField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    temp_url = models.CharField(max_length=100, default=create_url)
-    created = models.DateTimeField(auto_now_add=True, blank=True)
-    expires = models.IntegerField()
+    image_id = models.IntegerField(verbose_name='Image ID')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Author')
+    temp_url = models.URLField(max_length=100, null=True, verbose_name='Temporary Link')
+    created = models.DateTimeField(auto_now_add=True, blank=True, verbose_name='Creation Date')
+    expires = models.IntegerField(verbose_name='Seconds to expire')
 
     def clean(self):
         if self.expires < 300 or self.expires > 3000:
