@@ -16,12 +16,21 @@ class Image(models.Model):
 
 
 class TemporaryUrl(models.Model):
-    image = models.ForeignKey(Image, on_delete=models.CASCADE)
+
+    def create_url(self):
+        image_object = Image.objects.get(pk=self.image)
+        url = image_object.url
+        return url
+
+    image = models.IntegerField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    temp_url = models.CharField(blank=False, max_length=32)
+    temp_url = models.CharField(max_length=100, default=create_url)
     created = models.DateTimeField(auto_now_add=True, blank=True)
     expires = models.IntegerField()
 
     def clean(self):
         if self.expires < 300 or self.expires > 3000:
             raise ValidationError('Expiration time must be between 300 and 3000 seconds')
+
+
+

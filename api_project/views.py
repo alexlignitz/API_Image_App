@@ -3,6 +3,8 @@ import datetime
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from api_project.models import Image, TemporaryUrl
 from api_project.serializers import BasicAccountSerializer, PremiumAccountSerializer, EnterpriseAccountSerializer, \
@@ -52,3 +54,4 @@ class TempUrlViewSet(viewsets.ModelViewSet):
     queryset = get_queryset
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [DjangoModelPermissions]
+

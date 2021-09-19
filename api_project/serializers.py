@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from sorl_thumbnail_serializer.fields import HyperlinkedSorlImageField
 
@@ -37,9 +38,12 @@ class EnterpriseAccountSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'image', 'author', 'thumbnail200', 'thumbnail400']
 
 
-class TempUrlViewSerializer(serializers.Serializer):
-    image = serializers.HiddenField(default=None)
+class TempUrlViewSerializer(serializers.ModelSerializer):
+    image = serializers.IntegerField()
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    temp_url = serializers.HiddenField(default=None)
+    expires = serializers.IntegerField()
 
     class Meta:
         model = TemporaryUrl
-        fields = ['image', 'url']
+        fields = ['image', 'author', 'temp_url', 'expires']
