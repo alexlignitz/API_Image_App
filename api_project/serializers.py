@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from sorl_thumbnail_serializer.fields import HyperlinkedSorlImageField
 
-from .models import Image
+from .models import Image, TemporaryUrl
 
 
 class BasicAccountSerializer(serializers.ModelSerializer):
@@ -37,3 +37,9 @@ class EnterpriseAccountSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'image', 'author', 'thumbnail200', 'thumbnail400']
 
 
+class TempUrlViewSerializer(serializers.Serializer):
+    image = serializers.HiddenField(default=None)
+
+    class Meta:
+        model = TemporaryUrl
+        fields = ['image', 'url']
