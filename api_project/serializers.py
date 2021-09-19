@@ -36,19 +36,4 @@ class EnterpriseAccountSerializer(serializers.ModelSerializer):
         model = Image
         fields = ['id', 'title', 'image', 'author', 'thumbnail200', 'thumbnail400']
 
-# def get_thumbnail200(self, obj):
-#     groups = Group.objects.all()
-#     if self.author in groups:
-#         thumbnail200 = get_thumbnail(self.thumbnail200, '200x200', source='image', read_only=True)
-#         return thumbnail200
-#     else:
-#         return PermissionError
-#
-# def get_thumbnail400(self, obj):
-#     premium = Group.objects.filter(name="Premium")
-#     enterprise = Group.objects.filter(name="Enterprise")
-#     if self.author in premium or self.author in enterprise:
-#         thumbnail400 = HyperlinkedSorlImageField('400x400', source='image', read_only=True)
-#         return thumbnail400
-#     else:
-#         return PermissionError
+

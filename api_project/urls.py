@@ -9,6 +9,7 @@ from django.conf.urls.static import static
 router = DefaultRouter()
 router.register('image', ImageViewSet, basename='image')
 
+
 urlpatterns = [
     path('viewset/', include(router.urls)),
     path('viewset/<int:pk>/', include(router.urls)),
