@@ -1,5 +1,4 @@
-import datetime
-
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from sorl_thumbnail_serializer.fields import HyperlinkedSorlImageField
 
@@ -46,19 +45,21 @@ class TempUrlViewSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     temp_url = serializers.SerializerMethodField('create_url', read_only=True)
     created = serializers.DateTimeField(read_only=True)
-    expires = serializers.IntegerField(write_only=True)
-    exp_date = serializers.SerializerMethodField('get_exp_date', read_only=True)
+    expires = serializers.IntegerField(write_only=True, required=True)
+    is_active = serializers.BooleanField(read_only=True)
+
+    def validate_expires(self, value):
+        if value < 300 or value > 3000:
+            raise ValidationError('Expiration time must be between 300 and 3000 seconds')
+        return value
 
     class Meta:
         model = TemporaryUrl
-        fields = ['image_id', 'author', 'temp_url', 'created', 'expires', 'exp_date']
+        fields = ['id', 'image_id', 'author', 'temp_url', 'created', 'expires', 'is_active']
 
     def create_url(self, obj):
         request = self.context.get("request")
         image_obj_url = Image.objects.get(pk=obj.image_id).image.url
         return request.build_absolute_uri(image_obj_url)
 
-    def get_exp_date(self, obj):
-        exp_sec = obj.created.replace(tzinfo=None)
-        exp_date = exp_sec + datetime.timedelta(hours=2, seconds=obj.expires)
-        return exp_date
+
