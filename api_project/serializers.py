@@ -8,6 +8,10 @@ author = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
 
 class BasicAccountSerializer(serializers.ModelSerializer):
+    """"
+    Provides view for the user with Basic account
+    """
+
     image = serializers.ImageField(write_only=True)
     author = author
 
@@ -19,6 +23,10 @@ class BasicAccountSerializer(serializers.ModelSerializer):
 
 
 class PremiumAccountSerializer(serializers.ModelSerializer):
+    """"
+        Provides view for the user with Premium account
+    """
+
     author = author
 
     thumbnail200 = HyperlinkedSorlImageField('200x200', source='image', read_only=True)
@@ -30,6 +38,10 @@ class PremiumAccountSerializer(serializers.ModelSerializer):
 
 
 class EnterpriseAccountSerializer(serializers.ModelSerializer):
+    """"
+        Provides view for the user with Enterprise account
+    """
+
     author = author
 
     thumbnail200 = HyperlinkedSorlImageField('200x200', source='image', read_only=True)
@@ -41,6 +53,10 @@ class EnterpriseAccountSerializer(serializers.ModelSerializer):
 
 
 class TempUrlViewSerializer(serializers.ModelSerializer):
+    """"
+        Provides view for the user with Enterprise account - ability to fetch an expiring link to a stored image.
+    """
+
     image_id = serializers.IntegerField(write_only=True)
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     temp_url = serializers.SerializerMethodField('create_url', read_only=True)
@@ -61,5 +77,3 @@ class TempUrlViewSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         image_obj_url = Image.objects.get(pk=obj.image_id).image.url
         return request.build_absolute_uri(image_obj_url)
-
-

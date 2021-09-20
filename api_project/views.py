@@ -12,6 +12,9 @@ from api_project.serializers import BasicAccountSerializer, PremiumAccountSerial
 
 
 class ImageViewSet(viewsets.ModelViewSet):
+    """"
+        Provides access to image list/upload/update/deletion depending on the user account type (see get_serializer_class).
+    """
 
     def get_queryset(self):
         author = self.request.user
@@ -38,6 +41,9 @@ class ImageViewSet(viewsets.ModelViewSet):
 
 
 class TempUrlViewSet(viewsets.ModelViewSet):
+    """"
+        Provides access to temporary links list/upload/deletion depending on the user account type (see get_serializer_class).
+    """
 
     def get_author_links(self):
         author = self.request.user
