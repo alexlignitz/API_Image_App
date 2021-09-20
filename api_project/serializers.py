@@ -5,10 +5,12 @@ from sorl_thumbnail_serializer.fields import HyperlinkedSorlImageField
 
 from .models import Image, TemporaryUrl
 
+author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
 
 class BasicAccountSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(write_only=True)
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    author = author
 
     thumbnail200 = HyperlinkedSorlImageField('200x200', source='image', read_only=True)
 
@@ -18,7 +20,7 @@ class BasicAccountSerializer(serializers.ModelSerializer):
 
 
 class PremiumAccountSerializer(serializers.ModelSerializer):
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    author = author
 
     thumbnail200 = HyperlinkedSorlImageField('200x200', source='image', read_only=True)
     thumbnail400 = HyperlinkedSorlImageField('400x400', source='image', read_only=True)
@@ -29,7 +31,7 @@ class PremiumAccountSerializer(serializers.ModelSerializer):
 
 
 class EnterpriseAccountSerializer(serializers.ModelSerializer):
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    author = author
 
     thumbnail200 = HyperlinkedSorlImageField('200x200', source='image', read_only=True)
     thumbnail400 = HyperlinkedSorlImageField('400x400', source='image', read_only=True)
@@ -47,19 +49,9 @@ class TempUrlViewSerializer(serializers.ModelSerializer):
     expires = serializers.IntegerField(write_only=True)
     exp_date = serializers.SerializerMethodField('get_exp_date', read_only=True)
 
-    def validate_link(self, obj):
-        now = datetime.datetime.now()
-        exp_sec = obj.created.replace(tzinfo=None)
-        exp_date = exp_sec + datetime.timedelta(hours=2, seconds=obj.expires)
-        if now >= exp_date:
-            temp_url = "Link expired"
-            return temp_url
-        return obj
-
     class Meta:
         model = TemporaryUrl
         fields = ['image_id', 'author', 'temp_url', 'created', 'expires', 'exp_date']
-
 
     def create_url(self, obj):
         request = self.context.get("request")
@@ -70,6 +62,3 @@ class TempUrlViewSerializer(serializers.ModelSerializer):
         exp_sec = obj.created.replace(tzinfo=None)
         exp_date = exp_sec + datetime.timedelta(hours=2, seconds=obj.expires)
         return exp_date
-
-    def get_image(self, obj):
-        return Image.objects.get(pk=obj.image_id)

@@ -1,6 +1,3 @@
-import datetime
-
-from django.utils.timezone import utc
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import DjangoModelPermissions
@@ -46,7 +43,14 @@ class TempUrlViewSet(viewsets.ModelViewSet):
             links = TemporaryUrl.objects.filter(author=author)
         return links
 
-    serializer_class = TempUrlViewSerializer
+    def get_serializer_class(self):
+        user = self.request.user
+        if user.groups.filter(name='Enterprise').exists() or user.is_superuser:
+            return TempUrlViewSerializer
+        else:
+            raise PermissionError('Access denied')
+
+    serializer_class = get_serializer_class
     queryset = get_queryset
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [DjangoModelPermissions]
